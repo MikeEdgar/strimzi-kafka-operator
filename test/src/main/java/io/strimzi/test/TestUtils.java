@@ -104,6 +104,28 @@ public final class TestUtils {
      */
     public static final TimeUnit DEFAULT_TIMEOUT_UNIT = TimeUnit.SECONDS;
 
+    /**
+     * Number of available processors (as given by {@link Runtime#availableProcessors()}) with
+     * which the literal timeout values in test cases are expected to be sufficient. When running
+     * on a system with fewer CPUs than this number, the timeout values will be increased by a
+     * factor calculated by dividing the target CPU count by the actual count.
+     */
+    private static final int TARGET_CPU_COUNT = Optional.ofNullable(System.getenv("STRIMZI_TEST_TARGET_CPU_COUNT"))
+            .map(Integer::parseInt)
+            .orElse(8);
+    private static final float CPU_ADJUSTMENT;
+
+    static {
+        int cpuCount = Runtime.getRuntime().availableProcessors();
+
+        if (cpuCount < TARGET_CPU_COUNT) {
+            CPU_ADJUSTMENT = ((float) TARGET_CPU_COUNT) / cpuCount;
+            LOGGER.info("TestUtils#waitFor timeouts will be adjusted by {} for {} CPUs (less than target {})", CPU_ADJUSTMENT, cpuCount, TARGET_CPU_COUNT);
+        } else {
+            CPU_ADJUSTMENT = 1f;
+        }
+    }
+
     private TestUtils() {
         // All static methods
     }
@@ -133,7 +155,14 @@ public final class TestUtils {
 
     public static long waitFor(String description, long pollIntervalMs, long timeoutMs, BooleanSupplier ready, Runnable onTimeout) {
         LOGGER.debug("Waiting for {}", description);
-        long deadline = System.currentTimeMillis() + timeoutMs;
+        long deadline;
+
+        if (CPU_ADJUSTMENT > 1f) {
+            long adjustedTimeoutMs = (long) (timeoutMs * CPU_ADJUSTMENT);
+            deadline = System.currentTimeMillis() + adjustedTimeoutMs;
+        } else {
+            deadline = System.currentTimeMillis() + timeoutMs;
+        }
 
         String exceptionMessage = null;
         String previousExceptionMessage = null;
