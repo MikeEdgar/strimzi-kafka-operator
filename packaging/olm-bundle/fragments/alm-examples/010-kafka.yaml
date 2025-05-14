@@ -1,0 +1,3 @@
+description: Example Kafka cluster (to be used together with KafkaNodePool)
+source: examples/kafka/kafka-persistent.yaml
+sourceIndex: 2

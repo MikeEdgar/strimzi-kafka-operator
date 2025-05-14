@@ -1,0 +1,3 @@
+description: Example KafkaTopic custom resource
+source: examples/topic/kafka-topic.yaml
+sourceIndex: 0

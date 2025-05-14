@@ -1,0 +1,3 @@
+description: Example Cruise Control rebalance request
+source: examples/cruise-control/kafka-rebalance-with-goals.yaml
+sourceIndex: 0

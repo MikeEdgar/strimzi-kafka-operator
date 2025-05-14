@@ -1,0 +1,4 @@
+description: Example KafkaNodePool custom resource
+name: my-pool
+source: examples/kafka/kafka-persistent.yaml
+sourceIndex: 1

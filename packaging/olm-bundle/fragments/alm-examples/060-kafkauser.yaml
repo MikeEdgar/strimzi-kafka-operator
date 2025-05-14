@@ -1,0 +1,3 @@
+description: Example KafkaUser custom resource
+source: examples/user/kafka-user.yaml
+sourceIndex: 0
